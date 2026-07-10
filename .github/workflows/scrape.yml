@@ -34,16 +34,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Add specific file types
-          git add tax_data/*.json
-          git add tax_data/*.csv
-          
+          git add tax_data/
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            echo "Changes detected:"
-            git diff --staged --stat
             git commit -m "Update tax parameters: $(date +%Y-%m-%d)"
             git push
           fi
