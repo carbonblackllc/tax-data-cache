@@ -1,7 +1,7 @@
 """
 Simple Tax Foundation Table Scraper
 Pulls tax bracket and standard deduction tables directly from their HTML tables.
-Auto-detects current tax year. Saves stable flat JSON for Google Sheets.
+Auto-detects current tax year. Saves stable flat JSON and CSV for Google Sheets.
 """
 
 import requests
@@ -10,6 +10,7 @@ import json
 import os
 import re
 from datetime import datetime
+import csv
 
 # Auto-detect tax year
 TAX_YEAR = str(datetime.now().year)
@@ -196,6 +197,33 @@ with open(LATEST_FILE, "w") as f:
     json.dump(flat, f, indent=2)
 print(f"💾 Saved: {LATEST_FILE}")
 
+with open(FLAT_FILE, "r", encoding="utf-8") as json_file:
+    data = json.load(json_file)
+
+headers= list(data.keys())
+data= list(data.values())
+data_ranges= []
+
+for item in data:
+    param= str(item)
+    if "$" in param:
+        pattern = r"\$\d{1,3}(?:,\d{3})*(?:\.\d+)?"
+        dollar_amts= re.findall(pattern, param)
+
+        clean_floats = [float(amt.replace('$', '').replace(',', '')) for amt in dollar_amts]
+
+        data_ranges.append(",".join(str(num) for num in clean_floats))
+    else:
+        data_ranges.append(param)
+
+with open('TY_2026.csv', 'w', newline='', encoding='utf-8') as csv_file:
+
+    writer = csv.writer(csv_file)
+    writer.writerows([headers])
+    writer.writerows([data_ranges])
+    
+
 print(f"\n✅ Done! {len(flat)} parameters extracted")
 print(f"   Standard deductions: {len(standard_deductions)} statuses")
 print(f"   Bracket thresholds: {len(flat) - 3 - len(standard_deductions)} values")
+print(f"CSV created!")
