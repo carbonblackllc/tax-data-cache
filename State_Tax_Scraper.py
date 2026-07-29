@@ -167,7 +167,6 @@ def download_state_tax_data():
         
         print(f"\n✓ Successfully downloaded and processed {len(df)} rows.")
         print(f"✓ Data saved to: {csv_filename}")
-        print(f"✓ Original file backed up to: {original_filename}")
         print(f"✓ Columns: {', '.join(df.columns.tolist())}")
         
         # Check if this looks like the right data (contains state tax information)
